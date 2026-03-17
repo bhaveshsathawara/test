@@ -1,6 +1,6 @@
 {
   "event_name": "purchase_completed",
-  "confluence_page_id": "YOUR_PAGE_ID_HERE",
+  "confluence_page_id": "6305120257",
   "trigger": "User successfully completes a purchase transaction",
   "description": "Fired when a user checks out and payment is confirmed. Used to track revenue events in Braze and CRM.",
   "properties": {
