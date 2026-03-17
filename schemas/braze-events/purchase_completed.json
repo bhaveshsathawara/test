@@ -1,0 +1,41 @@
+{
+  "event_name": "purchase_completed",
+  "confluence_page_id": "YOUR_PAGE_ID_HERE",
+  "trigger": "User successfully completes a purchase transaction",
+  "description": "Fired when a user checks out and payment is confirmed. Used to track revenue events in Braze and CRM.",
+  "properties": {
+    "order_id": {
+      "type": "string",
+      "required": true,
+      "description": "Unique identifier for the order (e.g. ORD-12345)"
+    },
+    "amount": {
+      "type": "number",
+      "required": true,
+      "description": "Total purchase amount in the specified currency"
+    },
+    "currency": {
+      "type": "string",
+      "required": true,
+      "description": "ISO 4217 currency code (e.g. USD, EUR, GBP)"
+    },
+    "items": {
+      "type": "array",
+      "required": true,
+      "description": "List of purchased items. Each item has product_id, name, quantity, and unit_price"
+    },
+    "discount_code": {
+      "type": "string",
+      "required": false,
+      "description": "Promo or discount code applied at checkout, if any"
+    },
+    "payment_method": {
+      "type": "string",
+      "required": false,
+      "description": "Payment method used (e.g. credit_card, paypal, apple_pay)"
+    }
+  },
+  "last_updated": "2026-03-17",
+  "updated_by": "bhaveshsathawara",
+  "status": "active"
+}
