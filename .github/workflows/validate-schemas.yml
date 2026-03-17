@@ -32,6 +32,8 @@ jobs:
             if [ -f "$file" ]; then
               echo "Validating: $file"
               ajv compile -s "$file" --strict=false || exit 1
+
+
             fi
           done
           echo "All schemas are valid!"
