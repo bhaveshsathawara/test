@@ -1,0 +1,37 @@
+name: Validate Braze Event Schemas
+
+on:
+  push:
+    paths:
+      - 'schemas/braze-events/**'
+  pull_request:
+    paths:
+      - 'schemas/braze-events/**'
+
+jobs:
+  validate:
+    name: Validate JSON Schemas
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install ajv-cli
+        run: npm install -g ajv-cli
+
+      - name: Validate JSON schemas
+        run: |
+          echo "Validating JSON schemas in schemas/braze-events/"
+          for file in schemas/braze-events/*.json; do
+            if [ -f "$file" ]; then
+              echo "Validating: $file"
+              ajv validate -s "$file" --strict=false || exit 1
+            fi
+          done
+          echo "All schemas are valid!"
