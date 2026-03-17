@@ -1,0 +1,78 @@
+name: Update Confluence on Schema Change
+
+# Triggers only when a schema JSON is merged into main.
+# This keeps Confluence clean — no draft or WIP updates.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'schemas/braze-events/**/*.json'
+
+jobs:
+  update-confluence:
+    name: Sync changed schemas to Confluence
+    runs-on: ubuntu-latest
+
+    steps:
+      # ---------------------------------------------------------------
+      # 1. Check out the repo with enough history to detect changed files
+      # ---------------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2   # Need HEAD and HEAD~1 to diff changed files
+
+      # ---------------------------------------------------------------
+      # 2. Set up Python
+      # ---------------------------------------------------------------
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # ---------------------------------------------------------------
+      # 3. Install the only dependency (requests)
+      # ---------------------------------------------------------------
+      - name: Install dependencies
+        run: pip install requests
+
+      # ---------------------------------------------------------------
+      # 4. Detect which schema files changed in this push
+      #    Outputs a space-separated list, e.g.:
+      #    "schemas/braze-events/purchase_completed.json schemas/braze-events/signup.json"
+      # ---------------------------------------------------------------
+      - name: Detect changed schema files
+        id: changed
+        run: |
+          CHANGED=$(git diff --name-only HEAD~1 HEAD -- 'schemas/braze-events/*.json' | tr '\n' ' ')
+          echo "files=$CHANGED" >> "$GITHUB_OUTPUT"
+          if [ -z "$CHANGED" ]; then
+            echo "No schema files changed."
+          else
+            echo "Changed schema files: $CHANGED"
+          fi
+
+      # ---------------------------------------------------------------
+      # 5. Run the Python script for each changed schema file.
+      #    Secrets are injected as environment variables — never hardcoded.
+      # ---------------------------------------------------------------
+      - name: Update Confluence pages
+        if: steps.changed.outputs.files != ''
+        env:
+          CONFLUENCE_URL: ${{ secrets.CONFLUENCE_URL }}
+          CONFLUENCE_EMAIL: ${{ secrets.CONFLUENCE_EMAIL }}
+          CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
+        run: |
+          python scripts/update_confluence.py ${{ steps.changed.outputs.files }}
+
+      # ---------------------------------------------------------------
+      # 6. Post a summary to the GitHub Actions run log
+      # ---------------------------------------------------------------
+      - name: Summary
+        if: always()
+        run: |
+          echo "### Confluence Sync Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Changed files:** ${{ steps.changed.outputs.files || 'none' }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Triggered by commit:** ${{ github.sha }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Author:** ${{ github.actor }}" >> "$GITHUB_STEP_SUMMARY"
