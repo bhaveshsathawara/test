@@ -2,7 +2,7 @@
   "event_name": "purchase_completed",
   "confluence_page_id": "6305120257",
   "trigger": "User successfully completes a purchase transaction",
-  "description": "Fired when a user checks out and payment is confirmed. Used to track revenue events in Braze and CRM.",
+  "description": "Fired when a user checks out and payment is confirmed. Used to track revenue events in Braze and CRM. [E2E test: 2026-03-17]",
   "properties": {
     "order_id": {
       "type": "string",
@@ -33,6 +33,11 @@
       "type": "string",
       "required": false,
       "description": "Payment method used (e.g. credit_card, paypal, apple_pay)"
+    },
+    "session_id": {
+      "type": "string",
+      "required": false,
+      "description": "Browser session ID for attribution tracking"
     }
   },
   "last_updated": "2026-03-17",
